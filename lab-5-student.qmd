@@ -1,9 +1,18 @@
 ---
 title: "Lab 5: Murder in SQL City"
-author: "Your name here!"
-format: html
+author: "Amir Sepasian"
 editor: source
 embed-resources: true
+format: 
+  html:  
+    embed-resources: true
+    code-tools: true
+    toc: true
+execute: 
+  echo: true
+  warning: false
+  message: false
+code-fold: true
 ---
 
 For this lab, you will be joining and filtering related datasets to solve a murder mystery!
@@ -54,8 +63,87 @@ Detective Wickham reaches out to you...
 
 > A crime has taken place and I need your help! There was a murder in SQL City sometime on January 15, 2018. Could you retrieve the crime scene report from the police department’s database and follow the clues to find the person responsible for the murder?!
 
+
 ```{r}
 #| label: inspecting-crime-scene-report
+
+# Finding the interview of initial suspect
+
+crime_scene_report |>
+  mutate(date = ymd(date)) |>
+  filter(date == '2018-01-15',
+         type == 'murder',
+         city == 'SQL City') |>
+  pull(description)
+
+
+witness1 <- person |>
+  filter(address_street_name == 'Northwestern Dr', 
+         address_number == max(address_number)) |>
+  left_join(interview, 
+             by = join_by(id == person_id)) |>
+  pull(transcript)|>
+  print()
+
+
+witness2 <- person |>
+  filter(address_street_name == 'Franklin Ave', 
+         str_detect(name, 'Annabel')) |>
+  left_join(interview, 
+             by = join_by(id == person_id)) |>
+  pull(transcript) |>
+  print()
+
+
+
+get_fit_now_check_in |>
+  
+  full_join(get_fit_now_member, 
+             by = join_by(membership_id == id)) |>
+  
+  inner_join(person, 
+             by = join_by(person_id == id,
+                          name == name)) |>
+  inner_join(interview,
+             by = join_by(person_id == person_id)) |>
+  
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+
+
+  filter(membership_status == 'gold',
+         str_detect(membership_id, 
+                    '^48Z'),
+         str_detect(plate_number, 
+                    '.H42W')
+         ) 
+
+```
+
+
+```{r}
+
+# Finding who hired Jermey Bowers
+
+suspect <- person |>
+  
+  inner_join(facebook_event_checkin,
+             by = join_by(id == person_id)) |>
+  
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  
+  left_join(income,
+             by = join_by(ssn == ssn)) |>
+  
+  filter(height %in% c(65, 66, 67),
+         car_model == 'Model S',
+         hair_color == 'red') |>
+
+# Validating the suspect by checking whether an interview exists
+  semi_join(interview,
+             by = join_by(id == person_id))
+
 
 ```
 
@@ -66,4 +154,4 @@ Hint: Make sure you check for interviews with any suspects!
 
 ## And the final suspect is...
 
-*Put the name of the person responsible for the murder here:*
+*Put the name of the person responsible for the murder here: Miranda Priestly*
