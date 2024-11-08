@@ -84,19 +84,24 @@ witness1 <- person |>
          address_number == max(address_number)) |>
   left_join(interview, 
              by = join_by(id == person_id)) |>
-  pull(transcript)|>
+  pull(transcript) |>
   print()
 
 # Reviewing transcripts of witness 2
 
 witness2 <- person |>
   filter(address_street_name == 'Franklin Ave', 
-         str_detect(name, 'Annabel')) |>
+         str_detect(name, '^Annabel')) |>
   left_join(interview, 
              by = join_by(id == person_id)) |>
   pull(transcript) |>
   print()
+```
 
+
+```{r}
+
+#| label: interviewing-initial-suspect
 
 # Finding the interview of initial suspect
 
@@ -130,6 +135,8 @@ get_fit_now_check_in |>
 
 ```{r}
 
+#| label: finding-suspect
+
 # Finding who hired Jermey Bowers
 
 suspect <- person |>
@@ -153,6 +160,8 @@ suspect <- person |>
 ```
 
 ```{r}
+
+#| label: validating-suspect
 
 # Validating the suspect by checking whether an interview exists
 suspect |> 
