@@ -67,7 +67,7 @@ Detective Wickham reaches out to you...
 ```{r}
 #| label: inspecting-crime-scene-report
 
-# Finding the interview of initial suspect
+# Pulling the crime scene report
 
 crime_scene_report |>
   mutate(date = ymd(date)) |>
@@ -77,6 +77,8 @@ crime_scene_report |>
   pull(description)
 
 
+# Reviewing transcripts of witness 1 
+
 witness1 <- person |>
   filter(address_street_name == 'Northwestern Dr', 
          address_number == max(address_number)) |>
@@ -85,6 +87,7 @@ witness1 <- person |>
   pull(transcript)|>
   print()
 
+# Reviewing transcripts of witness 2
 
 witness2 <- person |>
   filter(address_street_name == 'Franklin Ave', 
@@ -95,6 +98,7 @@ witness2 <- person |>
   print()
 
 
+# Finding the interview of initial suspect
 
 get_fit_now_check_in |>
   
@@ -116,7 +120,10 @@ get_fit_now_check_in |>
                     '^48Z'),
          str_detect(plate_number, 
                     '.H42W')
-         ) 
+         ) |>
+  pull(transcript) |>
+  print()
+
 
 ```
 
@@ -139,11 +146,18 @@ suspect <- person |>
   filter(height %in% c(65, 66, 67),
          car_model == 'Model S',
          hair_color == 'red') |>
+  
+  print()
+
+
+```
+
+```{r}
 
 # Validating the suspect by checking whether an interview exists
+suspect |> 
   semi_join(interview,
-             by = join_by(id == person_id))
-
+          by = join_by(id == person_id))
 
 ```
 
